@@ -98,6 +98,45 @@ func GiveMeResponse(channel chan string) {
 	channel <- "Test"
 }
 
+func TestSelectChannel3(t *testing.T) {
+	chan1 := make(chan string)
+	chan2 := make(chan string)
+
+	defer close(chan1)
+	defer close(chan2)
+
+	go func() {
+		time.Sleep(1 * time.Second)
+		chan1 <- "Test Channel 1 data 1"
+		chan1 <- "Test Channel 1 data 2"
+	}()
+
+	go func() {
+		time.Sleep(1 * time.Second)
+		chan2 <- "Test Channel 2 data 1"
+		chan2 <- "Test Channel 2 data 2"
+	}()
+
+	// select with for
+	counter := 0
+	for {
+		select {
+		case data := <-chan1:
+			fmt.Println("Data dari channel 1", data)
+			counter++
+		case data := <-chan2:
+			fmt.Println("Data dari channel 2", data)
+			counter++
+		}
+
+		if counter == 4 { // cause we have 4 data come into channel
+			break
+		}
+	}
+
+	fmt.Println("selesai")
+}
+
 func TestSelectChannel(t *testing.T) {
 	chan1 := make(chan string)
 	chan2 := make(chan string)
